@@ -6,9 +6,10 @@
         var me = this, $chart,
                 size = opts.size || opts.$container.offsetWidth,
                 centerOfTheCircle = size / 2,
-                total = 0,
+                total = 0, totalPercent = 0,
                 ringProportion = opts.ringProportion || 0.35,
                 speed = opts.speed || 1,
+                durration = opts.durration || 10,
                 PI = Math.PI,
                 cos = Math.cos,
                 sin = Math.sin,
@@ -34,6 +35,7 @@
 
         function drawPaths() {
             calculateTotal();
+            calculatePercents();
             if (animated === true) {
                 drawWithAnimation();
             } else {
@@ -50,12 +52,14 @@
         }
 
         function anim(startAngle, length, counter) {
-            var sector = opts.definition[counter], timeout, currentValue = 0, newStartAngle,
+            var sector = opts.definition[counter], timeout, currentValue = 0, newStartAngle = 0,
                     timeoutFn = function () {
-                        currentValue += speed;
-                        newStartAngle = updatePath(sector.$path, startAngle, currentValue);
-                        if (currentValue < sector.value) {
-                            timeout = setTimeout(timeoutFn, 10);
+                        if (shouldDrawSection(sector)) {
+                            currentValue += getSectorNextAnimValue(sector, currentValue);
+                            newStartAngle = updatePath(sector.$path, startAngle, currentValue);
+                        }
+                        if (currentValue < sector.percent) {
+                            timeout = setTimeout(timeoutFn, durration);
                         } else if (counter < length - 1) {
                             counter += 1;
                             newStartAngle += startAngle;
@@ -63,22 +67,20 @@
                             anim(newStartAngle, length, counter);
                         }
                     };
-            if (shouldDrawSection(sector)) {
-                timeout = setTimeout(timeoutFn, 10);
-            }
+            timeout = setTimeout(timeoutFn, durration);
         }
 
         function draw() {
             var startAngle = -PI / 2;
             loopOverSectors(function (sector) {
                 if (shouldDrawSection(sector)) {
-                    startAngle += updatePath(sector.$path, startAngle, sector.value);
+                    startAngle += updatePath(sector.$path, startAngle, sector.percent);
                 }
             });
         }
 
         function updatePath($path, startAngle, value) {
-            var sectorAngle = (value / total) * (PI * 2),
+            var sectorAngle = (value / 100) * (PI * 2),
                     endRadius = startAngle + sectorAngle,
                     largeArc = ((endRadius - startAngle) % (PI * 2)) > PI ? 1 : 0, //inversion
                     startX = centerOfTheCircle + cos(startAngle) * centerOfTheCircle,
@@ -103,6 +105,19 @@
             });
         }
 
+        function  calculatePercents() {
+            totalPercent = 0;
+            if (total === 0) {
+                return;
+            }
+            loopOverSectors(function (sector, index) {
+                sector.percent = Math.round(100 * sector.value / total);
+                totalPercent += sector.percent;
+                if (isLastSector(index)) {
+                    sector.percent += 100 - totalPercent;
+                }
+            });
+        }
 
         function addPaths() {
             loopOverSectors(addPath);
@@ -155,7 +170,7 @@
         }
 
         function shouldDrawSection(section) {
-            return section.value > 0;
+            return section.value > 0 && section.percent > 0;
         }
 
         function isDefined(val) {
@@ -172,6 +187,21 @@
             $path.removeAttribute('d');
         }
 
+        function isLastSector(index) {
+            return index + 1 === opts.definition.length;
+        }
+
+        function getSectorNextAnimValue(sector, currentValue) {
+            var percent = sector.percent, step = speed;
+            if (currentValue + speed > percent) {
+                step = percent - currentValue;
+            }
+            if (currentValue + step === 100) {
+                step -= 0.0001;
+            }
+            return step;
+        }
+
     };
 
 
@@ -179,10 +209,10 @@
             chart = new PieChart({
                 $container: $container,
                 definition: [
-                    {name: 'poznan', cls: 'poznan', value: 7},
-                    {name: 'warszawa', cls: 'warszawa', value: 34},
-                    {name: 'srem', cls: 'srem', value: 8},
-                    {name: 'gdansk', cls: 'gdansk', value: 10}
+                    {name: 'poznan', cls: 'poznan', value: 1},
+                    {name: 'warszawa', cls: 'warszawa', value: 1},
+                    {name: 'srem', cls: 'srem', value: 1},
+                    {name: 'gdansk', cls: 'gdansk', value: 1}
                 ]
             });
 
