@@ -185,6 +185,5 @@
                     {name: 'gdansk', cls: 'gdansk', value: 10}
                 ]
             });
-    _aa = chart;
 
 })();
