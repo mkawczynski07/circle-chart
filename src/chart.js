@@ -12,21 +12,34 @@
                 PI = Math.PI,
                 cos = Math.cos,
                 sin = Math.sin,
-                animated = typeof opts.animated === 'undefined' ? true : opts.animated;
+                animated = !isDefined(opts.animated) ? true : opts.animated,
+                drawAtStart = !isDefined(opts.drawAtStart) ? true : opts.drawAtStart;
 
         createChart();
         createBacgroundRing();
-
         addPaths();
-        calculateTotal();
-        if (animated === true) {
-            drawWithAnimation();
-        } else {
-            draw();
+        if (drawAtStart) {
+            drawPaths();
         }
-
         createEmptyBackgroundRing();
         opts.$container.appendChild($chart);
+
+        me.update = function (data) {
+            loopOverSectors(function (sector) {
+                setNewSectorValue(sector, data[sector.name]);
+                removePathPie(sector.$path);
+            });
+            drawPaths();
+        };
+
+        function drawPaths() {
+            calculateTotal();
+            if (animated === true) {
+                drawWithAnimation();
+            } else {
+                draw();
+            }
+        }
 
         function drawWithAnimation() {
             var startAngle = -PI / 2, endAngle = 0,
@@ -50,13 +63,17 @@
                             anim(newStartAngle, length, counter);
                         }
                     };
-            timeout = setTimeout(timeoutFn, 10);
+            if (shouldDrawSection(sector)) {
+                timeout = setTimeout(timeoutFn, 10);
+            }
         }
 
         function draw() {
             var startAngle = -PI / 2;
             loopOverSectors(function (sector) {
-                startAngle += updatePath(sector.$path, startAngle, sector.value);
+                if (shouldDrawSection(sector)) {
+                    startAngle += updatePath(sector.$path, startAngle, sector.value);
+                }
             });
         }
 
@@ -111,7 +128,6 @@
             $chart.setAttribute("width", size);
             $chart.setAttribute("height", size);
             $chart.setAttribute("viewBox", "0 0 " + size + " " + size);
-//            $chart.setAttribute("style", "transform: rotate(-90deg)");
         }
 
         function createBacgroundRing() {
@@ -138,6 +154,24 @@
             return document.createElementNS(SVG_NAMESPACE, type);
         }
 
+        function shouldDrawSection(section) {
+            return section.value > 0;
+        }
+
+        function isDefined(val) {
+            return typeof val !== 'undefined';
+        }
+
+        function setNewSectorValue(sector, value) {
+            if (isDefined(value)) {
+                sector.value = parseInt(value);
+            }
+        }
+
+        function  removePathPie($path) {
+            $path.removeAttribute('d');
+        }
+
     };
 
 
@@ -151,6 +185,6 @@
                     {name: 'gdansk', cls: 'gdansk', value: 10}
                 ]
             });
-
+    _aa = chart;
 
 })();
