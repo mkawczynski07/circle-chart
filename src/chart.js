@@ -3,7 +3,7 @@
     var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
     var PieChart = function (opts) {
-        var me = this, $chart,
+        var me = this, $chart, $tooltip,
                 size = opts.size || opts.$container.offsetWidth,
                 centerOfTheCircle = size / 2,
                 total = 0, totalPercent = 0,
@@ -14,12 +14,16 @@
                 cos = Math.cos,
                 sin = Math.sin,
                 animated = !isDefined(opts.animated) ? true : opts.animated,
-                drawAtStart = !isDefined(opts.drawAtStart) ? true : opts.drawAtStart;
+                drawAtStart = !isDefined(opts.drawAtStart) ? true : opts.drawAtStart,
+                shouldAddTooltip = !isDefined(opts.tooltips) ? false : opts.tooltips;
 
         createChart();
         createBacgroundRing();
         addPaths();
         createEmptyBackgroundRing();
+        if (shouldAddTooltip) {
+            createTooltipContainer();
+        }
         opts.$container.appendChild($chart);
         executeEvent('onAfterRender');
         if (drawAtStart) {
@@ -38,7 +42,6 @@
             calculateTotal();
             calculatePercents();
             executeEvent('onUpdateStart');
-
             if (animated === true) {
                 drawWithAnimation();
             } else {
@@ -132,8 +135,24 @@
         function addPath(sector) {
             var $path = createSvgElement('path');
             $path.setAttributeNS(null, "class", sector.cls);
+            if (shouldAddTooltip) {
+                $path.addEventListener('click', onPathhClick.bind(sector));
+            }
             $chart.appendChild($path);
             sector.$path = $path;
+        }
+
+        function onPathhClick(event) {
+            var sector = this;
+            $tooltip.textContent = sector.label + ' : ' + sector.value + '.';
+            $tooltip.style.cssText = 'display: none; position: fixed; left:' + event.x
+                    + 'px; top:' + event.y + 'px;';
+            executeEvent('onPathClick', event);
+            $tooltip.style.display = 'block';
+        }
+
+        function hideToltip() {
+            $tooltip.style.cssText = 'display: none; position: fixed;';
         }
 
         function loopOverSectors(fn) {
@@ -161,6 +180,14 @@
             var $emptyCircle = createCircle(centerOfTheCircle, size * ringProportion);
             $emptyCircle.setAttributeNS(null, "class", "ring-chart-background-empty");
             $chart.appendChild($emptyCircle);
+        }
+
+        function createTooltipContainer() {
+            $tooltip = document.createElement("div");
+            $tooltip.className = 'ring-chart-tooltip';
+            $tooltip.style.cssText = 'display: none; position: fixed;';
+            $container.appendChild($tooltip);
+            document.body.addEventListener('click', onOutContainerClick);
         }
 
         function createCircle(size, radius) {
@@ -208,14 +235,23 @@
             return step;
         }
 
-        function executeEvent(name) {
+        function executeEvent(name, originalEvent) {
             var fn = opts[name];
             if (typeof fn === 'function') {
                 fn.call(me, {
                     $chart: $chart,
                     chart: me,
-                    total: total
+                    total: total,
+                    event: originalEvent,
+                    $tooltip: $tooltip
                 });
+            }
+        }
+
+        function onOutContainerClick(event) {
+            var $target = event.target;
+            if ($container.contains($target) === false) {
+                hideToltip();
             }
         }
 
@@ -225,11 +261,12 @@
     var $container = document.getElementById('chart'),
             chart = new PieChart({
                 $container: $container,
+                tooltips: true,
                 definition: [
-                    {name: 'poznan', cls: 'poznan', value: 1},
-                    {name: 'warszawa', cls: 'warszawa', value: 1},
-                    {name: 'srem', cls: 'srem', value: 1},
-                    {name: 'gdansk', cls: 'gdansk', value: 1}
+                    {label: 'Poznan', name: 'poznan', cls: 'poznan', value: 1},
+                    {label: 'Warszawa', name: 'warszawa', cls: 'warszawa', value: 1},
+                    {label: 'Srem', name: 'srem', cls: 'srem', value: 1},
+                    {label: 'Gdansk', name: 'gdansk', cls: 'gdansk', value: 1}
                 ],
                 onAfterRender: function () {
                     console.log(arguments);
