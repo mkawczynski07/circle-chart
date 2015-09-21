@@ -1,7 +1,7 @@
 (function () {
-
+    
     var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-
+    
     var PieChart = function (opts) {
         var me = this, $chart,
                 size = opts.size || opts.$container.offsetWidth,
@@ -15,16 +15,17 @@
                 sin = Math.sin,
                 animated = !isDefined(opts.animated) ? true : opts.animated,
                 drawAtStart = !isDefined(opts.drawAtStart) ? true : opts.drawAtStart;
-
+        
         createChart();
         createBacgroundRing();
         addPaths();
+        createEmptyBackgroundRing();
+        opts.$container.appendChild($chart);
+        executeEvent('onAfterRender');
         if (drawAtStart) {
             drawPaths();
         }
-        createEmptyBackgroundRing();
-        opts.$container.appendChild($chart);
-
+        
         me.update = function (data) {
             loopOverSectors(function (sector) {
                 setNewSectorValue(sector, data[sector.name]);
@@ -32,17 +33,19 @@
             });
             drawPaths();
         };
-
+        
         function drawPaths() {
+            executeEvent('onUpdateStart');
             calculateTotal();
             calculatePercents();
             if (animated === true) {
                 drawWithAnimation();
             } else {
                 draw();
+                executeEvent('onUpdateEnd');
             }
         }
-
+        
         function drawWithAnimation() {
             var startAngle = -PI / 2, endAngle = 0,
                     sectors = opts.definition,
@@ -50,7 +53,7 @@
                     counter = 0;
             anim(startAngle, length, counter);
         }
-
+        
         function anim(startAngle, length, counter) {
             var sector = opts.definition[counter], timeout, currentValue = 0, newStartAngle = 0,
                     timeoutFn = function () {
@@ -65,11 +68,13 @@
                             newStartAngle += startAngle;
                             currentValue = 0;
                             anim(newStartAngle, length, counter);
+                        } else {
+                            executeEvent('onUpdateEnd');
                         }
                     };
             timeout = setTimeout(timeoutFn, durration);
         }
-
+        
         function draw() {
             var startAngle = -PI / 2;
             loopOverSectors(function (sector) {
@@ -78,7 +83,7 @@
                 }
             });
         }
-
+        
         function updatePath($path, startAngle, value) {
             var sectorAngle = (value / 100) * (PI * 2),
                     endRadius = startAngle + sectorAngle,
@@ -96,7 +101,7 @@
             $path.setAttribute("d", d.join(' '));
             return sectorAngle;
         }
-
+        
         function calculateTotal() {
             total = 0;
             loopOverSectors(function (sector) {
@@ -104,7 +109,7 @@
                 total += sector.value;
             });
         }
-
+        
         function  calculatePercents() {
             totalPercent = 0;
             if (total === 0) {
@@ -118,18 +123,18 @@
                 }
             });
         }
-
+        
         function addPaths() {
             loopOverSectors(addPath);
         }
-
+        
         function addPath(sector) {
             var $path = createSvgElement('path');
             $path.setAttributeNS(null, "class", sector.cls);
             $chart.appendChild($path);
             sector.$path = $path;
         }
-
+        
         function loopOverSectors(fn) {
             var x = 0, definition = opts.definition,
                     length = definition.length;
@@ -137,26 +142,26 @@
                 fn.call(me, definition[x], x);
             }
         }
-
+        
         function createChart() {
             $chart = createSvgElement("svg:svg");
             $chart.setAttribute("width", size);
             $chart.setAttribute("height", size);
             $chart.setAttribute("viewBox", "0 0 " + size + " " + size);
         }
-
+        
         function createBacgroundRing() {
             var $bacground = createCircle(centerOfTheCircle, centerOfTheCircle);
             $bacground.setAttributeNS(null, "class", "ring-chart-background");
             $chart.appendChild($bacground);
         }
-
+        
         function createEmptyBackgroundRing() {
             var $emptyCircle = createCircle(centerOfTheCircle, size * ringProportion);
             $emptyCircle.setAttributeNS(null, "class", "ring-chart-background-empty");
             $chart.appendChild($emptyCircle);
         }
-
+        
         function createCircle(size, radius) {
             var circle = createSvgElement("circle");
             circle.setAttributeNS(null, "cx", size);
@@ -164,33 +169,33 @@
             circle.setAttributeNS(null, "r", radius);
             return circle;
         }
-
+        
         function createSvgElement(type) {
             return document.createElementNS(SVG_NAMESPACE, type);
         }
-
+        
         function shouldDrawSection(section) {
             return section.value > 0 && section.percent > 0;
         }
-
+        
         function isDefined(val) {
             return typeof val !== 'undefined';
         }
-
+        
         function setNewSectorValue(sector, value) {
             if (isDefined(value)) {
                 sector.value = parseInt(value);
             }
         }
-
+        
         function  removePathPie($path) {
             $path.removeAttribute('d');
         }
-
+        
         function isLastSector(index) {
             return index + 1 === opts.definition.length;
         }
-
+        
         function getSectorNextAnimValue(sector, currentValue) {
             var percent = sector.percent, step = speed;
             if (currentValue + speed > percent) {
@@ -201,10 +206,20 @@
             }
             return step;
         }
-
+        
+        function executeEvent(name) {
+            var fn = opts[name];
+            if (typeof fn === 'function') {
+                fn.call(me, {
+                    $chart: $chart,
+                    chart: me
+                });
+            }
+        }
+        
     };
-
-
+    
+    
     var $container = document.getElementById('chart'),
             chart = new PieChart({
                 $container: $container,
@@ -213,7 +228,16 @@
                     {name: 'warszawa', cls: 'warszawa', value: 1},
                     {name: 'srem', cls: 'srem', value: 1},
                     {name: 'gdansk', cls: 'gdansk', value: 1}
-                ]
+                ],
+                onAfterRender: function () {
+                    console.log(arguments);
+                },
+                onUpdateStart: function () {
+                    console.log(arguments);
+                },
+                onUpdateEnd: function () {
+                    console.log(arguments);
+                }
             });
-
+    
 })();
