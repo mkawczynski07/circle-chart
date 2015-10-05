@@ -3,8 +3,8 @@
     var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
     var PieChart = function (opts) {
-        var me = this, $chart, $tooltip,
-                size = opts.size || opts.$container.offsetWidth,
+        var me = this, $chart, $tooltip, $container = opts.$container,
+                size = opts.size || $container.offsetWidth,
                 centerOfTheCircle = size / 2,
                 staticTotal = !isDefined(opts.staticTotal) ? false : opts.staticTotal,
                 total = staticTotal ? opts.total || 0 : 0, totalPercent = 0,
@@ -16,12 +16,18 @@
                 sin = Math.sin,
                 animated = !isDefined(opts.animated) ? true : opts.animated,
                 drawAtStart = !isDefined(opts.drawAtStart) ? true : opts.drawAtStart,
-                shouldAddTooltip = !isDefined(opts.tooltips) ? false : opts.tooltips;
+                shouldAddTooltip = !isDefined(opts.tooltips) ? false : opts.tooltips,
+                addPiePathsAtLast = !isDefined(opts.tooltips) ? false : opts.addPiePathsAtLast;
 
         createChart();
         createBacgroundRing();
-        addPaths();
-        createEmptyBackgroundRing();
+        if (addPiePathsAtLast) {
+            createEmptyBackgroundRing();
+            addPaths();
+        } else {
+            addPaths();
+            createEmptyBackgroundRing();
+        }
         if (shouldAddTooltip) {
             createTooltipContainer();
         }
