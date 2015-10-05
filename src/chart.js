@@ -6,7 +6,8 @@
         var me = this, $chart, $tooltip,
                 size = opts.size || opts.$container.offsetWidth,
                 centerOfTheCircle = size / 2,
-                total = 0, totalPercent = 0,
+                staticTotal = !isDefined(opts.staticTotal) ? false : opts.staticTotal,
+                total = staticTotal ? opts.total || 0 : 0, totalPercent = 0,
                 ringProportion = opts.ringProportion || 0.35,
                 speed = opts.speed || 1,
                 durration = opts.durration || 10,
@@ -36,6 +37,10 @@
                 removePathPie(sector.$path);
             });
             drawPaths();
+        };
+
+        me.setTotal = function (newTotal) {
+            total = Number(newTotal);
         };
 
         function drawPaths() {
@@ -107,6 +112,9 @@
         }
 
         function calculateTotal() {
+            if (staticTotal === true) {
+                return;
+            }
             total = 0;
             loopOverSectors(function (sector) {
                 sector.value = parseInt(sector.value || 0);
@@ -122,7 +130,7 @@
             loopOverSectors(function (sector, index) {
                 sector.percent = Math.round(100 * sector.value / total);
                 totalPercent += sector.percent;
-                if (isLastSector(index)) {
+                if (isLastSector(index) && staticTotal === false) {
                     sector.percent += 100 - totalPercent;
                 }
             });
@@ -262,6 +270,8 @@
             chart = new PieChart({
                 $container: $container,
                 tooltips: true,
+//                staticTotal: true,
+//                total: 3,
                 definition: [
                     {label: 'Poznan', name: 'poznan', cls: 'poznan', value: 1},
                     {label: 'Warszawa', name: 'warszawa', cls: 'warszawa', value: 1},
