@@ -77,7 +77,6 @@ Simple donut chart:
                     gdansk: 0
                 });
             });
-        </script>
 ```
  *  **setTotal(value)** - Set total value of the chart.
 
