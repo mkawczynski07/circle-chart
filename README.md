@@ -1,6 +1,6 @@
 # Circle Chart
 
- It is simple circle chart component, based on SVG. Online [demo](http://mkawczynski07.github.io/circle-chart/);
+ It is simple circle chart component, based on SVG. Online [demo](http://mkawczynski07.github.io/circle-chart/).
 
 ## Install
 
@@ -40,11 +40,11 @@ Simple donut chart:
  *  **durration** - Sleep time duration between chart's path update. In ms, default - 10.
  *  **tooltips** - If set to true tooltips will be displayed on click. Default - false.
  *  **definition** - Array of chart paths definition. It contains objects with:
- *  *  **label** - Label of the path
- *  *  **name** - Name of the attribute in data object
- *  * **cls** - Path's css class name
- *  * **color** - Path's color.
- *  * **value** - Initial value
+   -  **label** - Label of the path
+   -  **name** - Name of the attribute in data object
+   - **cls** - Path's css class name
+   - **color** - Path's color.
+   - **value** - Initial value
 
 ## Events
  * **onAfterRender** - Triggered when the chart render.
