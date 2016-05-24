@@ -1,15 +1,235 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>SVG Ring Circle</title>
+        <title>Circle Chart</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="src/main.css" rel="stylesheet" type="text/css"/>
+        <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+        <style>
+            body { margin: 0; padding: 0; font-family: 'Roboto'; width: 100%; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; }
+            .chart-example { width: 100%; }
+            .chart-example header { width: 100%; } 
+            .chart-example .wrapper { width: 100%; flex: 1; -ms-flex: 1; flex: 1; }
+            .chart-example .wrapper { padding: 20px 0; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; }
+            .chart-wrapper { min-height: 220px; padding: 0 20px; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; }
+            .code { -webkit-box-flex: 1; -ms-flex: 1; flex: 1 }
+            .chart-example header { font-size: 24px;  }
+            #donut, #one-value, #pie-chart, #no-animation, #update-chart { width: 220px; height: 220px; }
+
+            code { font-family: monospace; font-size: 12px; }
+
+            .ring-chart-background { fill: #D1C4E9; }
+
+            .ring-chart-background-empty {
+                fill: #fff;
+            }
+
+            .poznan { fill: #BF360C; }
+            .warszawa { fill: #E91E63; }
+            .srem { fill: #FFAB91; }
+            .gdansk { fill: #FF5722; }
+        </style>
     </head>
     <body>
+        <article class="chart-example" style="background: #FBE9E7;">
+            <header>Pie chart without animation</header>
+            <div class="wrapper">
+                <div class="chart-wrapper">
+                    <div id="no-animation"></div>
+                </div>   
+                <div class="code">
+                    <pre>
+new CircleChart({
+    $container: document.getElementById('no-animation'),
+    animated: false,
+    isPie: true,
+    background: '#FBE9E7',
+    tooltips: true,
+    definition: [
+        {label: 'Poznan', name: 'poznan', cls: 'poznan', value: 1},
+        {label: 'Warszawa', name: 'warszawa', color: '#F4511E', value: 1},
+        {label: 'Srem', name: 'srem', cls: 'srem', value: 1},
+        {label: 'Gdansk', name: 'gdansk', cls: 'gdansk', value: 1}
+    ]
+});
+                    </pre>
+                </div>
+            </div>
+        </article>
+        <article class="chart-example" style="background: #BDBDBD;">
+            <header>Donut chart</header>
+            <div class="wrapper">
+                <div class="chart-wrapper">
+                    <div id="donut"></div>
+                </div>   
+                <div class="code">
+                    <pre>
+new CircleChart({
+    $container: document.getElementById('donut'),
+    ringProportion: 0.42,
+    middleCircleColor: '#BDBDBD',
+    background: '#D1C4E9',
+    definition: [
+        {label: 'Poznan', name: 'poznan', cls: 'poznan', value: 1},
+        {label: 'Warszawa', name: 'warszawa', color: '#D84315', value: 1},
+        {label: 'Srem', name: 'srem', cls: 'srem', value: 1},
+        {label: 'Gdansk', name: 'gdansk', cls: 'gdansk', value: 1}
+    ]
+});
+                    </pre>
+                </div>
+            </div>
+        </article>
 
-        <div id="chart"></div>
+        <article class="chart-example" style="background: #E0F2F1;">
+            <header>One value chart</header>
+            <div class="wrapper">
+                <div class="chart-wrapper">
+                    <div id="one-value"></div>
+                </div>   
+                <div class="code">
+                    <pre>
+new CircleChart({
+    $container: document.getElementById('one-value'),
+    ringProportion: 0.42,
+    tooltips: true,
+    staticTotal: true,
+    total: 100,
+    middleCircleColor: '#E0F2F1s',
+    background: '#D4E157',
+    definition: [
+        {label: 'Temperature', name: 'temp', color: '#009688', value: 32.98}
+    ]
+});
+                    </pre>
+                </div>
+            </div>
+        </article>
 
-        <script src="src/chart.js" type="text/javascript"></script>
+        <article class="chart-example" style="background: #795548;">
+            <header>Pie chart</header>
+            <div class="wrapper">
+                <div class="chart-wrapper">
+                    <div id="pie-chart"></div>
+                </div>   
+                <div class="code">
+                    <pre>
+new CircleChart({
+    $container: document.getElementById('pie-chart'),
+    tooltips: true,
+    background: '#A1887F',
+    definition: [
+        {label: 'Java', name: 'temp', color: '#5D4037', value: 3},
+        {label: 'JavaScript', name: 'temp', color: '#5D4037', value: 2},
+        {label: 'Others', name: 'temp', color: '#5D4037', value: 0.5}
+    ]
+});
+                    </pre>
+                </div>
+            </div>
+        </article>
+
+        <article class="chart-example" style="background: #BDBDBD;">
+            <header>Donut chart with update example <a href="#" id="update-chart-trigger">update</a></header>
+            <div class="wrapper">
+                <div class="chart-wrapper">
+                    <div id="update-chart"></div>
+                </div>   
+                <div class="code">
+                    <pre>
+new CircleChart({
+    $container: document.getElementById('update-chart'),
+    ringProportion: 0.42,
+    middleCircleColor: '#BDBDBD',
+    background: '#D1C4E9',
+    definition: [
+        {label: 'Poznan', name: 'poznan', cls: 'poznan', value: 1},
+        {label: 'Warszawa', name: 'warszawa', color: '#D84315', value: 1},
+        {label: 'Srem', name: 'srem', cls: 'srem', value: 1},
+        {label: 'Gdansk', name: 'gdansk', cls: 'gdansk', value: 1}
+    ]
+});
+                    </pre>
+                </div>
+            </div>
+        </article>
+
+
+
+
+
+        <script src="build/circle-chart.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            new CircleChart({
+                $container: document.getElementById('no-animation'),
+                animated: false,
+                isPie: true,
+                background: '#FBE9E7',
+                tooltips: true,
+                definition: [
+                    {label: 'Poznan', name: 'poznan', cls: 'poznan', value: 1},
+                    {label: 'Warszawa', name: 'warszawa', color: '#F4511E', value: 1},
+                    {label: 'Srem', name: 'srem', cls: 'srem', value: 1},
+                    {label: 'Gdansk', name: 'gdansk', cls: 'gdansk', value: 1}
+                ]
+            });
+            new CircleChart({
+                $container: document.getElementById('donut'),
+                ringProportion: 0.42,
+                middleCircleColor: '#BDBDBD',
+                background: '#D1C4E9',
+                definition: [
+                    {label: 'Poznan', name: 'poznan', cls: 'poznan', value: 1},
+                    {label: 'Warszawa', name: 'warszawa', color: '#D84315', value: 1},
+                    {label: 'Srem', name: 'srem', cls: 'srem', value: 1},
+                    {label: 'Gdansk', name: 'gdansk', cls: 'gdansk', value: 1}
+                ]
+            });
+            new CircleChart({
+                $container: document.getElementById('one-value'),
+                ringProportion: 0.42,
+                tooltips: true,
+                staticTotal: true,
+                total: 100,
+                middleCircleColor: '#E0F2F1',
+                background: '#B2DFDB',
+                definition: [
+                    {label: 'Temperature', name: 'temp', color: '#009688', value: 32.98}
+                ]
+            });
+            new CircleChart({
+                $container: document.getElementById('pie-chart'),
+                isPie: true,
+                tooltips: true,
+                background: '#A1887F',
+                definition: [
+                    {label: 'Java', name: 'java', color: '#8D6E63', value: 3},
+                    {label: 'JavaScript', name: 'javaScript', color: '#EFEBE9', value: 2},
+                    {label: 'Others', name: 'others', color: '#5D4037', value: 0.5}
+                ]
+            });
+            var updateChart = new CircleChart({
+                $container: document.getElementById('update-chart'),
+                ringProportion: 0.42,
+                middleCircleColor: '#BDBDBD',
+                background: '#D1C4E9',
+                tooltips: true,
+                definition: [
+                    {label: 'Poznan', name: 'poznan', cls: 'poznan', value: 1},
+                    {label: 'Warszawa', name: 'warszawa', color: '#D84315', value: 1},
+                    {label: 'Srem', name: 'srem', cls: 'srem', value: 1},
+                    {label: 'Gdansk', name: 'gdansk', cls: 'gdansk', value: 1}
+                ]
+            });
+            document.querySelector('#update-chart-trigger').addEventListener('click', function(e){
+                e.preventDefault();
+                updateChart.update({
+                    poznan: 10,
+                    warszawa: 1,
+                    srem: 8,
+                    gdansk: 0
+                });
+            });
+        </script>
     </body>
 </html>

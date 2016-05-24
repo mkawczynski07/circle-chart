@@ -1,16 +1,1 @@
-#chart{
-    width: 300px; 
-    border: 1px dashed red;
-    margin: 0 auto;
-}
 
-.ring-chart-background { fill: lightgray; }
-
-.ring-chart-background-empty {
-    fill: #fff;
-}
-
-.poznan { fill: blue; }
-.warszawa { fill: green; }
-.srem { fill: red; }
-.gdansk { fill: yellow; }

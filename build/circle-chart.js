@@ -1,3 +1,14 @@
+(function (root, factory) {
+    'use strict';
+    if (typeof module === 'object') {
+        module.exports = factory;
+    } else if (typeof define === 'function' && define.amd) {
+        define(factory);
+    } else {
+        root.CircleChart = factory;
+    }
+}(this, function () {
+    
 var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 var CircleChart = function (opts) {
@@ -316,3 +327,6 @@ var CircleChart = function (opts) {
     }
 
 };
+
+    return CircleChart;
+}()));
